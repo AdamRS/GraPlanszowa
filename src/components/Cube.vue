@@ -34,7 +34,7 @@
         <div class="cubeArea7"></div>
     </div>
     <button @click="throwCube6">Wylosuj </button>
-    <div v-if="drawnNumber != 0 ">Wylosowano: {{ drawnNumber }}</div>
+    <div v-if="drawnNumber != 0 ">Wylosowano: {{ drawnNumber }} {{gameIsRunnig}} {{ counter }}  {{ counter2}}</div>
 </div>
 
   
@@ -44,12 +44,20 @@
 import { eventBus } from '../main.js';
 
 export default {
-    props: ['drawnNumber'],
+    props: {
+    },
     data: function() {
         return { 
             counter:0,
             counter2:0,
+            drawnNumber:0,
+            gameIsRunnig: true, 
         }
+    },
+    created: function() {
+        eventBus.$on('gameRunning', (statut) => {
+        this.gameIsRunnig = statut;
+        });
     },
     methods: {
         throwCube : function() {
@@ -67,6 +75,14 @@ export default {
             this.counter2++;
             setTimeout(function(){eventBus.$emit('counterChange', this.counter)}.bind(this),4400)
             eventBus.$emit('counterChange2', this.counter2)
+        }
+    },
+    watch: {
+        gameIsRunnig: function() {
+            if (!this.gameIsRunnig){
+            this.counter = 0;
+            this.counter2 = 0
+            }
         }
     }
 }

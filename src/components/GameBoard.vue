@@ -3,6 +3,7 @@
         <div class="info">
             <div class="player1Move" v-if="player1Round"> <button @click="player1Move">Player 1: wykonaj ruch</button></div>
             <div class="player2Move" v-if="player2Round"> <button @click="player2Move">Player 2: wykonaj ruch</button></div>
+            {{ routeGame1.length}}   
         </div>
         <div class="gameBoard">
             <div class="P01"></div>
@@ -354,12 +355,14 @@ export default {
                 },
 
             ],
+            drawnNumber: Number,
+            throwCounter: Number,
+            throwCounter2: Number,
+            gameIsRunning : false,
+
         }
     },
      props: {
-        drawnNumber: Number,
-        throwCounter: Number,
-        throwCounter2: Number,
 
     },
     created: function() {
@@ -374,18 +377,65 @@ export default {
         });
     },
     methods: {
+        startGame: function() {
+            this.player1positon =0,
+            this.player1Round= false,
+            this.player1Column= 1,
+            this.player1Row= 1,
+            this.player2positon = 0,
+            this.player2Round= false,
+            this.player2Column= 1,
+            this.player2Row= 1,
+            this.gameIsRunning = true;
+
+            eventBus.$emit('gameRunning', this.gameIsRunning);
+
+        },
         player1Move: function(){
             this.player1positon+= this.drawnNumber;
+            console.log(this.player1positon) ;
+            if (this.player1positon > this.routeGame1.length-1) {
+                this.player1positon = this.routeGame1.length -1 ;
+                console.log(this.player1positon) ;
+            }
+            
             this.player1Column = this.routeGame1[this.player1positon].fieldColumn;
             this.player1Row = this.routeGame1[this.player1positon].fieldRow;
             this.player1Round = false;
+            this.checkWin();
         },
         player2Move: function(){
             this.player2positon+= this.drawnNumber;
+            if (this.player2positon > this.routeGame1.length-1) {
+                this.player2positon = this.routeGame1.length -1 ;
+                console.log(this.player1positon) ;
+            }
             this.player2Column = this.routeGame1[this.player2positon].fieldColumn;
             this.player2Row = this.routeGame1[this.player2positon].fieldRow;
             this.player2Round = false;
+            this.checkWin();
+
         },
+        checkWin: function() {
+            if (this.player1positon == 64) {
+                if (confirm('Player1 wygrał. Chcecie zagrać jeszcze raz??')){
+                    this.startGame();
+                    return;
+                }else {
+                    this.gameIsRunning = false;
+                    eventBus.$emit('gameRunning', this.gameIsRunning);
+                }
+            }
+            if (this.player2positon == 64) {
+                if (confirm('Player2 wygrał. Chcecie zagrać jeszcze raz??')){
+                    this.startGame();
+                    return;
+                }else {
+                    this.gameIsRunning = false;
+                    eventBus.$emit('gameRunning', this.gameIsRunning);
+                }
+            }
+        }
     },
     watch: {
         throwCounter: function() {
