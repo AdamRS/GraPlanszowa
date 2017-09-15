@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="row">
     <div class="cube" v-if="drawnNumber == 1">
         <div class="cubeArea4"></div>
     </div>
@@ -38,13 +38,17 @@
 </div>
 
   
-</template>
+</template> 
 
 <script>
+import { eventBus } from '../main.js';
+
 export default {
+    props: ['drawnNumber'],
     data: function() {
         return { 
-            drawnNumber: 0 
+            counter:0,
+            counter2:0,
         }
     },
     methods: {
@@ -55,19 +59,24 @@ export default {
         },
         throwCube6: function() {
             for (var j = 1; j <= 6; j++) {
-            setTimeout(function(x) { return function() { this.throwCube() }; }(j).bind(this), 600*j);
+            setTimeout(function() { return function() { this.throwCube() }; }(j).bind(this), 600*j);
             }
             setTimeout(function(){this.drawnNumber = Math.max(Math.floor(Math.random() * 6) +1, 1)}.bind(this),4300);
+            setTimeout(function(){eventBus.$emit('drawnNumberChange', this.drawnNumber)}.bind(this),4400);
+            this.counter++;
+            this.counter2++;
+            setTimeout(function(){eventBus.$emit('counterChange', this.counter)}.bind(this),4400)
+            eventBus.$emit('counterChange2', this.counter2)
         }
-        
     }
-
-
-  
 }
 </script>
 
-<style>
+<style scoped>
+.row {
+    width: 154px;
+    height: 154px;
+}
 .cube {
     display: grid;
     grid-template-columns: repeat(3, 50px);
@@ -77,7 +86,7 @@ export default {
 }
 .cube>div {
     background-color: red;
-    border-radius: 35%;
+    border-radius: 42%;
 }
 
 .cubeArea1 {
